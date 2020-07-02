@@ -1,0 +1,56 @@
+# Starter pipeline
+# Start with a minimal pipeline that you can customize to build and deploy your code.
+# Add steps that build, run tests, deploy, and more:
+# https://aka.ms/yaml
+
+# Starter pipeline
+# Start with a minimal pipeline that you can customize to build and deploy your code.
+# Add steps that build, run tests, deploy, and more:
+# https://aka.ms/yaml
+
+trigger:
+- none
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+variables:
+- group: keyvault_variable_group
+
+steps:
+
+- task: UsePythonVersion@0
+  inputs:
+    versionSpec: '3.6'
+    addToPath: true
+    architecture: 'x64'
+
+- script: |
+    pip install requests setuptools wheel 
+    pip install databricks-api databricks-cli
+  displayName: 'Load Python Dependencies'
+
+- script: |
+    echo "y
+    $(WORKSPACE-REGION-URL)
+    $(CSE-DEVELOP-PAT)" | databricks configure --token
+  displayName: 'Configure DB Cli'
+
+- script: |
+    if databricks secrets create-scope --scope accelerator-secret-scope
+    then echo "Secret scope successfully"
+    fi
+  displayName: 'Creating a secret scope'
+
+- script: databricks secrets list-scopes
+  displayName: "List secrets"
+
+- script: databricks secrets put --scope accelerator-secret-scope --key accelerator-secret --string-value $(DbStorageKeyWad)
+  displayName: 'Create scope with key'
+
+- script: |
+    python $(System.DefaultWorkingDirectory)/main.py $(CSE-DEVELOP-PAT) $(WORKSPACE-REGION-URL) $(NOTEBOOK_NAME)
+  displayName: 'Deploy Notebook'
+
+
+
