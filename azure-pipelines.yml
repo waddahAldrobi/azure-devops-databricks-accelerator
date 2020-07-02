@@ -45,7 +45,7 @@ steps:
 - script: databricks secrets list-scopes
   displayName: "List secrets"
 
-- script: databricks secrets put --scope accelerator-secret-scope --key accelerator-secret --string-value $(DbStorageKeyWad)
+- script: databricks secrets put --scope accelerator-secret-scope --key accelerator-secret --string-value $(accelerator-storage-key)
   displayName: 'Create scope with key'
 
 - script: |
